@@ -1,2 +1,8 @@
 /node_modules
 undefined
+.DS_Store
+package-lock.json
+yarn.lock
+release-builds
+.env
+.env.*

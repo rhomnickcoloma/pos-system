@@ -1241,6 +1241,7 @@ if (auth == undefined) {
 
             $('#productName').val(allProducts[index].name);
             $('#product_price').val(allProducts[index].price);
+            $('#cost_price').val(allProducts[index].cost_price);
             $('#quantity').val(allProducts[index].quantity);
 
             $('#product_id').val(allProducts[index]._id);

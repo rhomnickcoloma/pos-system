@@ -6,6 +6,7 @@ const async = require( "async" );
 const fileUpload = require('express-fileupload');
 const multer = require("multer");
 const fs = require('fs');
+const { emitWarning } = require("process");
 
 
 const storage = multer.diskStorage({
@@ -62,7 +63,7 @@ app.get( "/products", function ( req, res ) {
 
  
 app.post( "/product", upload.single('imagename'), function ( req, res ) {
-
+    console.log("BODY", req.body)
     let image = '';
 
     if(req.body.img != "") {
@@ -90,6 +91,7 @@ app.post( "/product", upload.single('imagename'), function ( req, res ) {
     let Product = {
         _id: parseInt(req.body.id),
         price: req.body.price,
+        cost_price: req.body.cost_price,
         category: req.body.category,
         quantity: req.body.quantity == "" ? 0 : req.body.quantity,
         name: req.body.name,
@@ -97,27 +99,29 @@ app.post( "/product", upload.single('imagename'), function ( req, res ) {
         img: image        
     }
 
-    if(req.body.id == "") { 
-        Product._id = Math.floor(Date.now() / 1000);
-        inventoryDB.insert( Product, function ( err, product ) {
-            if ( err ) res.status( 500 ).send( err );
-            else res.send( product );
-        });
-    }
-    else { 
-        inventoryDB.update( {
-            _id: parseInt(req.body.id)
-        }, Product, {}, function (
-            err,
-            numReplaced,
-            product
-        ) {
-            if ( err ) res.status( 500 ).send( err );
-            else res.sendStatus( 200 );
-        } );
+    inventoryDB.findOne( {
+        _id: parseInt(req.body.id)
+    }, function ( err, product ) {
+        if(!product) { 
+            inventoryDB.insert( Product, function ( err, product ) {
+                if ( err ) res.status( 500 ).send( err );
+                else res.send( product );
+            });
+        }
+        else { 
+            inventoryDB.update( {
+                _id: parseInt(req.body.id)
+            }, Product, {}, function (
+                err,
+                numReplaced,
+                product
+            ) {
+                if ( err ) res.status( 500 ).send( err );
+                else res.sendStatus( 200 );
+            } );
 
-    }
-
+        }
+    });
 });
 
 
